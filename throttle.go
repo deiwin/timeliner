@@ -2,8 +2,9 @@ package throttle
 
 import "time"
 
-type Throttleable interface{}
-
+// Throttle will filter out messages from a channel. Messages will only appear
+// on the resulting channel if they are *NOT* followed by another message within
+// the specified amount of time.
 func Throttle(in <-chan int, duration time.Duration) (out chan int) {
 	out = make(chan int)
 	go throttleSynchronously(in, out, duration)
