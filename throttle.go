@@ -11,6 +11,7 @@ func Throttle(in <-chan int, duration time.Duration) (out chan int) {
 		var (
 			lastMessage    int
 			messagePending bool
+			ok             bool
 		)
 
 		for {
@@ -24,10 +25,13 @@ func Throttle(in <-chan int, duration time.Duration) (out chan int) {
 				}
 			} else {
 				select {
-				case lastMessage = <-in:
-					messagePending = true
+				case lastMessage, ok = <-in:
+					if ok {
+						messagePending = true
+					} else {
+						break
+					}
 				}
-				// could also check every once in a while if the in channel is closed to break out
 			}
 		}
 	}()
