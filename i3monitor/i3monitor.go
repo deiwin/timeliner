@@ -23,8 +23,8 @@ func SubscribeToActiveWindowUpdates() (out chan ActiveWindowUpdate) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	throttledWindowEvents := throttle.Throttle(windowEvents, throttleDuration)
+	focusAndTitleEvents := FilterTitleAndFocusEvents(windowEvents)
+	throttledWindowEvents := throttle.Throttle(focusAndTitleEvents, throttleDuration)
 
 infninteLoop:
 	for {
