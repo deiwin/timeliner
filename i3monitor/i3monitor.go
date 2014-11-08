@@ -10,8 +10,8 @@ import (
 )
 
 type ActiveWindowUpdate struct {
-	Workspace string
-	Window    string
+	application string
+	title       string
 }
 
 const throttleDuration = 1 * time.Second
@@ -19,17 +19,17 @@ const throttleDuration = 1 * time.Second
 func SubscribeToActiveWindowUpdates() (out chan ActiveWindowUpdate) {
 	out = make(chan ActiveWindowUpdate)
 
-	workspaceEvents, err := i3ipc.Subscribe(i3ipc.I3WorkspaceEvent)
+	windowEvents, err := i3ipc.Subscribe(i3ipc.I3WindowEvent)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	throttledWorkspaceEvents := throttle.Throttle(workspaceEvents, throttleDuration)
+	throttledWindowEvents := throttle.Throttle(windowEvents, throttleDuration)
 
 infninteLoop:
 	for {
 		select {
-		case event := <-throttledWorkspaceEvents:
+		case event := <-throttledWindowEvents:
 			fmt.Printf("Received an event: %#v\n", event)
 		case <-time.After(5 * time.Second):
 			break infninteLoop
