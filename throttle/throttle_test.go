@@ -1,7 +1,7 @@
 package throttle_test
 
 import (
-	. "github.com/deiwin/throttle"
+	. "github.com/deiwin/timeliner/throttle"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
