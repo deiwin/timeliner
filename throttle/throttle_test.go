@@ -55,5 +55,20 @@ var _ = Describe("Throttle", func() {
 			channel <- 4
 			Expect(<-throttled).To(Equal(4))
 		})
+
+		It("should close after input channel is closed", func() {
+			close(channel)
+			Eventually(throttled).Should(BeClosed())
+		})
+
+		It("should be able to receive data and close after input channel is closed", func(done Done) {
+			defer close(done)
+
+			channel <- 5
+			Expect(<-throttled).To(Equal(5))
+
+			close(channel)
+			Eventually(throttled).Should(BeClosed())
+		})
 	})
 })

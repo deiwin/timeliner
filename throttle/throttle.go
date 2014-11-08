@@ -18,6 +18,7 @@ func throttleSynchronously(in <-chan int, out chan int, duration time.Duration) 
 		ok             bool
 	)
 
+infiniteLoop:
 	for {
 		if messagePending {
 			select {
@@ -33,7 +34,8 @@ func throttleSynchronously(in <-chan int, out chan int, duration time.Duration) 
 				if ok {
 					messagePending = true
 				} else {
-					break
+					close(out)
+					break infiniteLoop
 				}
 			}
 		}
