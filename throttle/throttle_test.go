@@ -2,6 +2,7 @@ package throttle_test
 
 import (
 	. "github.com/deiwin/timeliner/throttle"
+	"github.com/proxypoke/i3ipc"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -10,10 +11,10 @@ import (
 )
 
 var _ = Describe("Throttle", func() {
-	var channel chan int
+	var channel chan i3ipc.Event
 
 	BeforeEach(func() {
-		channel = make(chan int)
+		channel = make(chan i3ipc.Event)
 	})
 
 	It("should return", func() {
@@ -21,7 +22,13 @@ var _ = Describe("Throttle", func() {
 	})
 
 	Context("with a channel throttled by a microsecond", func() {
-		var throttled chan int
+		var (
+			throttled chan i3ipc.Event
+			event1    = *new(i3ipc.Event)
+			event2    = *new(i3ipc.Event)
+			event3    = *new(i3ipc.Event)
+			event4    = *new(i3ipc.Event)
+		)
 
 		BeforeEach(func() {
 			throttled = Throttle(channel, time.Microsecond)
@@ -30,30 +37,30 @@ var _ = Describe("Throttle", func() {
 		It("should return the only element pushed", func(done Done) {
 			defer close(done)
 
-			channel <- 1
-			Expect(<-throttled).To(Equal(1))
+			channel <- event1
+			Expect(<-throttled == event1).To(BeTrue())
 		})
 
 		It("should return the last of two consecutively pushed elements", func(done Done) {
 			defer close(done)
 
-			channel <- 1
-			channel <- 2
-			Expect(<-throttled).To(Equal(2))
+			channel <- event1
+			channel <- event2
+			Expect(<-throttled == event2).To(BeTrue())
 		})
 
 		It("should return the last of two consecutively pushed elements, twice", func(done Done) {
 			defer close(done)
 
-			channel <- 1
-			channel <- 2
-			Expect(<-throttled).To(Equal(2))
+			channel <- event1
+			channel <- event2
+			Expect(<-throttled == event2).To(BeTrue())
 
 			time.Sleep(2 * time.Microsecond)
 
-			channel <- 3
-			channel <- 4
-			Expect(<-throttled).To(Equal(4))
+			channel <- event3
+			channel <- event4
+			Expect(<-throttled == event4).To(BeTrue())
 		})
 
 		It("should close after input channel is closed", func() {
@@ -64,8 +71,8 @@ var _ = Describe("Throttle", func() {
 		It("should be able to receive data and close after input channel is closed", func(done Done) {
 			defer close(done)
 
-			channel <- 5
-			Expect(<-throttled).To(Equal(5))
+			channel <- event1
+			Expect(<-throttled == event1).To(BeTrue())
 
 			close(channel)
 			Eventually(throttled).Should(BeClosed())
