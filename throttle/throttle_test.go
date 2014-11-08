@@ -2,7 +2,7 @@ package throttle_test
 
 import (
 	. "github.com/deiwin/timeliner/throttle"
-	"github.com/proxypoke/i3ipc"
+	"github.com/samuelotter/i3ipc"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -24,10 +24,10 @@ var _ = Describe("Throttle", func() {
 	Context("with a channel throttled by a microsecond", func() {
 		var (
 			throttled chan i3ipc.Event
-			event1    = *new(i3ipc.Event)
-			event2    = *new(i3ipc.Event)
-			event3    = *new(i3ipc.Event)
-			event4    = *new(i3ipc.Event)
+			event1    = i3ipc.Event{Change: "1"}
+			event2    = i3ipc.Event{Change: "2"}
+			event3    = i3ipc.Event{Change: "3"}
+			event4    = i3ipc.Event{Change: "4"}
 		)
 
 		BeforeEach(func() {
@@ -38,7 +38,7 @@ var _ = Describe("Throttle", func() {
 			defer close(done)
 
 			channel <- event1
-			Expect(<-throttled == event1).To(BeTrue())
+			Expect(<-throttled).To(Equal(event1))
 		})
 
 		It("should return the last of two consecutively pushed elements", func(done Done) {
@@ -46,7 +46,7 @@ var _ = Describe("Throttle", func() {
 
 			channel <- event1
 			channel <- event2
-			Expect(<-throttled == event2).To(BeTrue())
+			Expect(<-throttled).To(Equal(event2))
 		})
 
 		It("should return the last of two consecutively pushed elements, twice", func(done Done) {
@@ -54,13 +54,13 @@ var _ = Describe("Throttle", func() {
 
 			channel <- event1
 			channel <- event2
-			Expect(<-throttled == event2).To(BeTrue())
+			Expect(<-throttled).To(Equal(event2))
 
 			time.Sleep(2 * time.Microsecond)
 
 			channel <- event3
 			channel <- event4
-			Expect(<-throttled == event4).To(BeTrue())
+			Expect(<-throttled).To(Equal(event4))
 		})
 
 		It("should close after input channel is closed", func() {
@@ -72,7 +72,7 @@ var _ = Describe("Throttle", func() {
 			defer close(done)
 
 			channel <- event1
-			Expect(<-throttled == event1).To(BeTrue())
+			Expect(<-throttled).To(Equal(event1))
 
 			close(channel)
 			Eventually(throttled).Should(BeClosed())

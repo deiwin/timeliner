@@ -3,7 +3,7 @@ package throttle
 import (
 	"time"
 
-	"github.com/proxypoke/i3ipc"
+	"github.com/samuelotter/i3ipc"
 )
 
 // Throttle will filter out messages from a channel. Messages will only appear

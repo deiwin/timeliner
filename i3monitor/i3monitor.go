@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/deiwin/timeliner/throttle"
-	"github.com/proxypoke/i3ipc"
+	"github.com/samuelotter/i3ipc"
 )
 
 type ActiveWindowUpdate struct {
