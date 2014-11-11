@@ -22,7 +22,7 @@ func throttleSynchronously(in <-chan i3ipc.Event, out chan i3ipc.Event, duration
 		ok             bool
 	)
 
-infiniteLoop:
+	defer close(out)
 	for {
 		if messagePending {
 			select {
@@ -38,8 +38,7 @@ infiniteLoop:
 				if ok {
 					messagePending = true
 				} else {
-					close(out)
-					break infiniteLoop
+					return
 				}
 			}
 		}
