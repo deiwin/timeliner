@@ -17,10 +17,14 @@ func Throttle(in <-chan i3ipc.Event, duration time.Duration) (out chan i3ipc.Eve
 
 func throttleSynchronously(in <-chan i3ipc.Event, out chan i3ipc.Event, duration time.Duration) {
 	var lastMessage *i3ipc.Event
-
 	defer close(out)
+
+	hasAPendingMessage := func() bool {
+		return lastMessage == nil
+	}
+
 	for {
-		if lastMessage == nil {
+		if hasAPendingMessage() {
 			select {
 			case message, ok := <-in:
 				if ok {
