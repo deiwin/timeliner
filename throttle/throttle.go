@@ -24,7 +24,16 @@ func throttleSynchronously(in <-chan i3ipc.Event, out chan i3ipc.Event, duration
 
 	defer close(out)
 	for {
-		if messagePending {
+		if !messagePending {
+			select {
+			case lastMessage, ok = <-in:
+				if ok {
+					messagePending = true
+				} else {
+					return
+				}
+			}
+		} else {
 			select {
 			case lastMessage, ok = <-in:
 				if !ok {
@@ -33,15 +42,6 @@ func throttleSynchronously(in <-chan i3ipc.Event, out chan i3ipc.Event, duration
 			case <-time.After(duration):
 				out <- lastMessage
 				messagePending = false
-			}
-		} else {
-			select {
-			case lastMessage, ok = <-in:
-				if ok {
-					messagePending = true
-				} else {
-					return
-				}
 			}
 		}
 	}
