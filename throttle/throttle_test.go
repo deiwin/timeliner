@@ -17,7 +17,9 @@ var _ = Describe("Throttle", func() {
 		channel = make(chan i3ipc.Event)
 	})
 
-	It("should return", func() {
+	It("should return", func(done Done) {
+		defer close(done)
+
 		Expect(Throttle(channel, time.Nanosecond)).NotTo(BeNil())
 	})
 
@@ -63,7 +65,9 @@ var _ = Describe("Throttle", func() {
 			Expect(<-throttled).To(Equal(event4))
 		})
 
-		It("should close after input channel is closed", func() {
+		It("should close after input channel is closed", func(done Done) {
+			defer close(done)
+
 			close(channel)
 			Eventually(throttled).Should(BeClosed())
 		})
