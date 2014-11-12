@@ -81,5 +81,13 @@ var _ = Describe("Throttle", func() {
 			close(channel)
 			Eventually(throttled).Should(BeClosed())
 		})
+
+		It("close should also work right after put", func(done Done) {
+			defer close(done)
+
+			channel <- event1
+			close(channel)
+			Consistently(throttled).ShouldNot(Receive())
+		})
 	})
 })
